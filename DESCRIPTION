@@ -1,0 +1,22 @@
+Package: BayesRMST
+Title: Restricted Mean Survival Time within a Bayesian Framework
+Version: 1.0.1
+Date: 2026-05-01
+Authors@R: 
+    c(person(given = "K. Shuvo",
+             family = "Bakar",
+             role = c("aut", "cre"),
+             email = "shuvo.bakar@gmail.com",
+             comment = c(ORCID = "0000-0003-3215-4496")),
+      person(given = "Armando",
+             family = "Teixeira-Pinto",
+             role = "ctb",
+             comment = c(ORCID = "0000-0002-9389-2516"))
+			 )
+Depends: R (>= 4.5)
+Description: What the package does (one paragraph).
+License: GPL (>= 2)
+Imports: survival, spBayesSurv, survextrap, brms, ggplot2, patchwork, dplyr, tidyr
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
