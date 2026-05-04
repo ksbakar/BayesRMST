@@ -11,9 +11,14 @@ import(tidyr)
 import(dplyr)
 
 importFrom("utils", "head", "tail")
-importFrom("stats", "complete.cases", "filter", "median", "quantile",
+importFrom("stats", "complete.cases", "median", "quantile",
                "rnorm", "sd", "setNames", "time")
 			   
 S3method(print,BayesRMST)
 S3method(plot,BayesRMST)
 
+export(
+       "survRMST",
+	   "print.BayesRMST",
+	   "plot.BayesRMST"
+	   )
