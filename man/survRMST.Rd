@@ -26,7 +26,6 @@ survRMST(data, modelType = c("KM"), family = "weibull",
 \item{model_fit}{...}
 \item{decision}{...}
 }
-}
 \references{
 
  Bakar, K. S. et al. (2026).
@@ -73,4 +72,3 @@ plot(out_para)
 ##
 }
 }
-\keyword{spT}
