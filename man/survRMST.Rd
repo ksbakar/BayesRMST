@@ -12,7 +12,7 @@ survRMST(data, modelType = c("KM"), family = "weibull",
 \arguments{
 \item{data}{Data frame containing the variables of survival data with columns in order: "time", "event/status" and "treatment".}
 \item{modelType}{Choices are: "BayesPara", "BayesMspline" and "BayesNonPara".}
-\item{family}{Only applicable if "BayesPara" is used, default family is "weibull" distribution.}
+\item{family}{Only applicable if "BayesPara" is used, default family is "weibull" distribution, see \link{brmsfamily}.}
 \item{iter}{Number of MCMC iterations, see \link{stan}.}
 \item{chains}{Number of chains for MCMC samples, see \link{stan}.}
 \item{cores}{Number of cores, see \link{stan}.}
