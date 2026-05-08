@@ -42,10 +42,13 @@ survRMST(data, modelType = c("KM"), family = "weibull",
 
 ## Datasets for evaluation of cetuximab in head and neck cancer
 
-data(cetux)
+data(cetux, package="survextrap")
+head(cetux)
+
 y <- cetux[,c(2:4)]
 names(y) <- c("X", "delta", "A")
 y$A <- as.numeric(y$A)-1
+head(y)
 
 # Bayesian M-spline
 
