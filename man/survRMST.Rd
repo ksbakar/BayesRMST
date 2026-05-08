@@ -33,6 +33,7 @@ survRMST(data, modelType = c("KM"), family = "weibull",
 }
 \seealso{
 \code{\link{plot.BayesRMST}}
+}
 \examples{
 \dontrun{
 

@@ -22,7 +22,7 @@ This function is used to obtain survival, rmst and omega plots.
 \item{...}{Other arguments.}
 }
 \seealso{
-\code{\link{survRMST}}.
+\code{\link{survRMST}}
 }
 \examples{
 \dontrun{
