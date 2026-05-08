@@ -150,9 +150,9 @@ compute_rmst_table <- function(object, decision) {
   # restriction summaries
   restr_df <- bind_rows(
     decision$results$Unconstrained_Restriction_Time$summary %>%
-      mutate(type = "Unconstrained"),
+      mutate(type = "Data-driven"),
     decision$results$Constrained_Restriction_Time$summary %>%
-      mutate(type = "Constrained")
+      mutate(type = "Elicited")
   )
   # trapezoidal RMST helper
   compute_rmst_inner <- function(df, tau) {
@@ -199,9 +199,9 @@ plot_rmst <- function(object, decision, rmst_results) {
   # restriction summaries
   restr_df <- bind_rows(
     decision$results$Unconstrained_Restriction_Time$summary %>%
-      mutate(type = "Unconstrained"),
+      mutate(type = "Data-driven"),
     decision$results$Constrained_Restriction_Time$summary %>%
-      mutate(type = "Constrained")
+      mutate(type = "Elicited")
   )
   # prepare plotting data
   surv_long <- object_long %>%
@@ -288,9 +288,9 @@ compute_rmst_plot <- function(object, decision, plot = FALSE) {
   # restriction summaries
   restr_df <- bind_rows(
     decision$results$Unconstrained_Restriction_Time$summary %>%
-      mutate(type = "Unconstrained"),
+      mutate(type = "Data-driven"),
     decision$results$Constrained_Restriction_Time$summary %>%
-      mutate(type = "Constrained")
+      mutate(type = "Elicited")
   )
   # trapezoidal RMST
   compute_rmst_inner <- function(df, tau) {
