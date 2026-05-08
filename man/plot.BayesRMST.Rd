@@ -5,12 +5,8 @@
 This function is used to obtain survival, rmst and omega plots.
 }
 \usage{
-\method{plot}{BayesRMST}(x,
-                           survival = FALSE,
-                           omega = FALSE,
-                           rmst = FALSE,
-                           CI = TRUE,
-                           ...)
+##
+\method{plot}{BayesRMST}(x, survival = FALSE, omega = FALSE, rmst = FALSE, CI = TRUE, ...)
 ##
 }
 \arguments{
