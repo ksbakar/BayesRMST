@@ -32,4 +32,4 @@ plot(out, rmst = TRUE)
 ##
 }
 }
-\keyword{spT}
+

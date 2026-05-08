@@ -13,18 +13,18 @@ survRMST(data, modelType = c("KM"), family = "weibull",
 \item{data}{Data frame containing the variables of survival data with columns in order: "time", "event/status" and "treatment".}
 \item{modelType}{Choices are: "BayesPara", "BayesMspline" and "BayesNonPara".}
 \item{family}{Only applicable if "BayesPara" is used, default family is "weibull" distribution.}
-\item{iter}{...}
-\item{chains}{...}
-\item{cores}{...}
-\item{control}{...}
-\item{seed}{...}
-\item{prio_expert_list}{... list(c(5, 6), c(10, 12), c(8.5, 10))}
-\item{eta}{...}
+\item{iter}{Number of MCMC iterations, see \link{stan}.}
+\item{chains}{Number of chains for MCMC samples, see \link{stan}.}
+\item{cores}{Number of cores, see \link{stan}.}
+\item{control}{A named list of parameters to control the sampler's behavior, see \link{stan}.}
+\item{seed}{Seed for random number generation.}
+\item{prior_expert_list}{A list argument for expert knowledge on tau, e.g., list(c(5, 6), c(10, 12), c(8.5, 10))}
+\item{eta}{Decision threshold for calculating Bayesian power, default eta = 0.95}
 }
 \value{
-\item{rmst}{...}
-\item{model_fit}{...}
-\item{decision}{...}
+\item{rmst}{Optimal RMST table.}
+\item{model_fit}{Model fit object.}
+\item{decision}{Decision for Bayesian Power.}
 }
 \references{
 
