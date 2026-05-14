@@ -44,11 +44,22 @@ survRMST(data, modelType = c("KM"), family = "weibull",
 
 data(cetux, package="survextrap")
 head(cetux)
-
-y <- cetux[,c(2:4)]
-names(y) <- c("X", "delta", "A")
-y$A <- as.numeric(y$A)-1
+y <- cetux[,c("years","d","treat")] # time, event, trt
+y$treat = as.numeric(y$treat)-1
 head(y)
+
+## North Central Cancer Treatment Group: Lung Cancer Data
+
+data(cancer, package="survival")
+x <- cancer[,c("time","status","sex")] # time, event, trt
+x$sex = x$sex-1; x$status = x$status-1
+head(x)
+
+## Acute Myelogenous Leukemia survival data
+
+data(aml, package="survival")
+aml$x = as.numeric(aml$x)-1
+head(aml)
 
 # Bayesian M-spline
 

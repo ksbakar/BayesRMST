@@ -3,7 +3,7 @@
 ## run survival models
 #############################################################
 
-survModel <- function(data = df_data,
+survModel <- function(data,
                       modelType = "BayesPara",
                       family = "weibull",
                       iter = 2000,

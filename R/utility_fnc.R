@@ -75,7 +75,7 @@ plot_surv <- function(object, CI=TRUE){
       geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2, color = NA) +
       geom_line(linewidth = 1) +
       labs(
-        x = "Years",
+        x = "Time",
         y = "Survival Probability",
         color = "",
         fill = ""
@@ -97,7 +97,7 @@ plot_surv <- function(object, CI=TRUE){
         linewidth = 1
       ) +
       labs(
-        x = "Years",
+        x = "Time",
         y = "Survival Probability",
         color = ""
       ) +
@@ -118,7 +118,7 @@ plot_omega <- function(object){
     geom_line(aes(y = omega_median), size = 1) +
     labs(
       title = "Posterior signal-to-noise",
-      x = "Years",
+      x = "Time",
       y = expression(Omega(tau)),
       color = "",
       fill = ""
@@ -156,6 +156,7 @@ compute_rmst_table <- function(object, decision) {
   )
   # trapezoidal RMST helper
   compute_rmst_inner <- function(df, tau) {
+    df[is.na(df)] <- 0
     df <- df %>%
       arrange(time) %>%
       filter(time <= tau)
@@ -261,7 +262,7 @@ plot_rmst <- function(object, decision, rmst_results) {
     ) +
     facet_grid(~ constraint) +
     labs(
-      x = "Years",
+      x = "Time",
       y = "Survival Probability",
       color = "",
       fill = ""
@@ -381,7 +382,7 @@ compute_rmst_plot <- function(object, decision, plot = FALSE) {
       ) +
       facet_grid( ~ constraint) +
       labs(
-        x = "Years",
+        x = "Time",
         y = "Survival Probability",
         color = "",
         fill = ""
@@ -395,6 +396,26 @@ compute_rmst_plot <- function(object, decision, plot = FALSE) {
   #
   return(rmst_results)
   #
+}
+
+## convert surv formula function to brms formula funciton
+
+surv_formula_to_bf <- function(formula) {
+  lhs <- formula[[2]]
+  rhs <- formula[[3]]
+  if (lhs[[1]] != as.name("Surv")) {
+    stop("Left-hand side must be a Surv() object.")
+  }
+  # Extract time and status
+  time_var <- deparse(lhs[[2]])
+  status_var <- deparse(lhs[[3]])
+  # Build brms formula
+  bf_formula <- paste0(
+    time_var,
+    " | cens(1 - ", status_var, ") ~ ",
+    deparse(rhs)
+  )
+  bf(as.formula(bf_formula))
 }
 
 #############################################################
