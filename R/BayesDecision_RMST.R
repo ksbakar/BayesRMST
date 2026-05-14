@@ -14,9 +14,6 @@ BayesDecision_RMST <- function(result,
   # Apply row-wise simulation
   n_sim <- 1000
   tau_grid <- df_result$time
-  #sims_0 <- mapply(function(mu, sd) {
-  #  rnorm(n = n_sim, mean = mu, sd = sd)
-  #}, df_result$surv_0, df_result$std_err_0)
   sims_0 <- mapply(function(mu, sd) {
     if (is.na(mu) || is.na(sd)) {
       rep(0, n_sim)
@@ -28,9 +25,6 @@ BayesDecision_RMST <- function(result,
       rnorm(n = n_sim, mean = mu, sd = sd)
     }
   }, df_result$surv_0, df_result$std_err_0, SIMPLIFY = TRUE)
-  #sims_1 <- mapply(function(mu, sd) {
-  #  rnorm(n = n_sim, mean = mu, sd = sd)
-  #}, df_result$surv_1, df_result$std_err_1)
   sims_1 <- mapply(function(mu, sd) {
     if (is.na(mu) || is.na(sd)) {
       rep(0, n_sim)
@@ -56,7 +50,7 @@ BayesDecision_RMST <- function(result,
                           omega_mean=apply(Omega,2,mean,na.rm=TRUE),
                           omega_sd=apply(Omega,2,sd,na.rm=TRUE))
   gridOmega <- tibble(gridOmega)
-  # unconstrained - non-informative
+  # unconstrained - data-driven - non-informative
   interval_list <- list(range(tau_grid))
   interval_idx <- lapply(interval_list, function(interval) {
     which(tau_grid >= interval[1] & tau_grid <= interval[2])
@@ -92,7 +86,7 @@ BayesDecision_RMST <- function(result,
                                                  decision = decision
   )
   # constrained restriction time - multiple expert knowledge
-  #interval_list <- c(prior_expert_list, list(range(tau_grid)))
+  # Uniform distribution
   # tau_grid summary values
   tau_min_one <- tau_grid[order(tau_grid)][2]
   tau_max <- max(tau_grid, na.rm = TRUE)
