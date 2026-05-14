@@ -57,7 +57,7 @@ head(x)
 
 ## Acute Myelogenous Leukemia survival data
 
-data(aml, package="survival")
+head(aml) # time, event, trt
 aml$x = as.numeric(aml$x)-1
 head(aml)
 
