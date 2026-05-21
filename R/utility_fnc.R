@@ -62,7 +62,8 @@ plot_surv <- function(object, CI=TRUE){
   if(isTRUE(CI)){
     surv_long <- object %>%
       pivot_longer(
-        cols = c(surv_0, surv_1, std_err_0, std_err_1),
+        cols = matches("^(surv|std_err)_"),
+        #cols = c(surv_0, surv_1, std_err_0, std_err_1),
         names_to = c(".value", "group"),
         names_pattern = "(surv|std_err)_(.)"
       ) %>%
@@ -87,9 +88,11 @@ plot_surv <- function(object, CI=TRUE){
   }
   else{
     surv_long <- object %>%
-      pivot_longer(cols = c(surv_0, surv_1),
-                   names_to = "group",
-                   values_to = "surv")
+      pivot_longer(
+        #cols = c(surv_0, surv_1),
+        cols = matches("^(surv)_"),
+        names_to = "group",
+        values_to = "surv")
     ggplot() +
       geom_line(
         data = surv_long,
@@ -126,12 +129,12 @@ plot_omega <- function(object){
     theme_minimal() +
     theme(
       plot.title = element_text(hjust = 0.5),
-      strip.text = element_text(face = "bold"),
-      axis.title = element_text(face = "bold"),
+      #strip.text = element_text(face = "bold"),
+      #axis.title = element_text(face = "bold"),
       panel.grid.minor = element_blank(),
       panel.grid.major = element_line(color = "grey90"),
-      legend.position = "bottom",
-      legend.title = element_text(face = "bold")
+      legend.position = "bottom"
+      #legend.title = element_text(face = "bold")
     )
 }
 #plot_omega(bb$gridOmega) # from decision
@@ -142,11 +145,14 @@ compute_rmst_table <- function(object, decision) {
   # reshape to long
   object_long <- object %>%
     pivot_longer(
-      cols = c(surv_0, surv_1, std_err_0, std_err_1),
+      #cols = c(surv_0, surv_1, std_err_0, std_err_1),
+      cols = matches("^(surv|std_err)_"),
       names_to = c(".value", "group"),
-      names_pattern = "(surv|std_err)_(\\d+)"
+      names_pattern = "(surv|std_err)_(.+)"
+      #names_pattern = "(surv|std_err)_(\\d+)"
     ) %>%
-    mutate(group = as.integer(group))
+    mutate(group = group)
+    #mutate(group = as.integer(group))
   # restriction summaries
   restr_df <- bind_rows(
     decision$results$Unconstrained_Restriction_Time$summary %>%
@@ -192,11 +198,15 @@ plot_rmst <- function(object, decision, rmst_results) {
   # reshape to long
   object_long <- object %>%
     pivot_longer(
-      cols = c(surv_0, surv_1, std_err_0, std_err_1),
+      #cols = c(surv_0, surv_1, std_err_0, std_err_1),
+      cols = matches("^(surv|std_err)_"),
       names_to = c(".value", "group"),
-      names_pattern = "(surv|std_err)_(\\d+)"
+      names_pattern = "(surv|std_err)_(.+)"
+      #names_pattern = "(surv|std_err)_(\\d+)"
     ) %>%
-    mutate(group = as.integer(group))
+    mutate(group = group)
+    #mutate(group = as.integer(group))
+  grp <- unique(object_long$group)
   # restriction summaries
   restr_df <- bind_rows(
     decision$results$Unconstrained_Restriction_Time$summary %>%
@@ -218,7 +228,7 @@ plot_rmst <- function(object, decision, rmst_results) {
     mutate(
       group = factor(group),
       label = paste0("RMST (g=", group, ") = ", round(rmst, 2)),
-      y_pos = ifelse(group == "0", 0.2, 0.1)
+      y_pos = ifelse(group == grp[1], 0.2, 0.1)
     )
   pp <- ggplot() +
     geom_area(
@@ -281,11 +291,14 @@ compute_rmst_plot <- function(object, decision, plot = FALSE) {
   # reshape to long
   object_long <- object %>%
     pivot_longer(
-      cols = c(surv_0, surv_1, std_err_0, std_err_1),
+      #cols = c(surv_0, surv_1, std_err_0, std_err_1),
+      cols = matches("^(surv|std_err)_"),
       names_to = c(".value", "group"),
-      names_pattern = "(surv|std_err)_(\\d+)"
+      names_pattern = "(surv|std_err)_(.+)"
+      #names_pattern = "(surv|std_err)_(\\d+)"
     ) %>%
-    mutate(group = as.integer(group))
+    mutate(group = group)
+  grp <- unique(object_long$group)
   # restriction summaries
   restr_df <- bind_rows(
     decision$results$Unconstrained_Restriction_Time$summary %>%
@@ -338,7 +351,7 @@ compute_rmst_plot <- function(object, decision, plot = FALSE) {
       mutate(
         group = factor(group),
         label = paste0("RMST (g=", group, ") = ", round(rmst, 2)),
-        y_pos = ifelse(group == "0", 0.2, 0.1)
+        y_pos = ifelse(group == grp[1], 0.2, 0.1)
       )
     pp <- ggplot() +
       geom_area(

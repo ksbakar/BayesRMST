@@ -44,7 +44,12 @@ survModel <- function(data,
         names_sep = "_"
       )
     df_wide$model = "KM"
-    names(df_wide) = c("time","surv_0","surv_1","std_err_0","std_err_1","model")
+    #names(df_wide) = c("time","surv_0","surv_1","std_err_0","std_err_1","model")
+    names(df_wide) = c("time",
+                       paste0("surv_",trt_names[1]),
+                       paste0("surv_",trt_names[2]),
+                       paste0("std_err_",trt_names[1]),
+                       paste0("std_err_",trt_names[2]),"model")
     df$KM = df_wide
   }
   if("BayesNonPara" %in% modelType){
@@ -70,12 +75,25 @@ survModel <- function(data,
     psnp1$sd <- (psnp1$Shatup - psnp1$Shatlow) / (2 * 1.96)
     # Combine side-by-side
     df_wide <- data.frame(
-      time = time_grid,
-      surv_0 = psnp0$Shat,
-      surv_1 = psnp1$Shat,
-      std_err_0 = psnp0$sd,
-      std_err_1 = psnp1$sd
+      setNames(rep(list(rep(1,length(time_grid))), 5),
+               c(paste0("time"),
+                 paste0("surv_",trt_names[1]),
+                 paste0("surv_",trt_names[2]),
+                 paste0("std_err_",trt_names[1]),
+                 paste0("std_err_",trt_names[2])))
     )
+    df_wide[,1] = time_grid
+    df_wide[,2] = psnp0$Shat
+    df_wide[,3] = psnp1$Shat
+    df_wide[,4] = psnp0$sd
+    df_wide[,5] = psnp1$sd
+    #df_wide <- data.frame(
+    #  time = time_grid,
+    #  surv_0 = psnp0$Shat,
+    #  surv_1 = psnp1$Shat,
+    #  std_err_0 = psnp0$sd,
+    #  std_err_1 = psnp1$sd
+    #)
     df_wide$model = "BayesNonPara"
     df$BayesNonPara = tibble(df_wide)
   }
@@ -109,12 +127,25 @@ survModel <- function(data,
     se1   <- apply(ps1, 2, sd)
     # Combine side-by-side
     df_wide <- data.frame(
-      time = time_grid,
-      surv_0 = surv0,
-      surv_1 = surv1,
-      std_err_0 = se0,
-      std_err_1 = se1
+      setNames(rep(list(rep(1,length(time_grid))), 5),
+               c(paste0("time"),
+                 paste0("surv_",trt_names[1]),
+                 paste0("surv_",trt_names[2]),
+                 paste0("std_err_",trt_names[1]),
+                 paste0("std_err_",trt_names[2])))
     )
+    df_wide[,1] = time_grid
+    df_wide[,2] = surv0
+    df_wide[,3] = surv1
+    df_wide[,4] = se0
+    df_wide[,5] = se1
+    #df_wide <- data.frame(
+    #  time = time_grid,
+    #  surv_0 = surv0,
+    #  surv_1 = surv1,
+    #  std_err_0 = se0,
+    #  std_err_1 = se1
+    #)
     df_wide$model = "BayesPara"
     df$BayesPara = tibble(df_wide)
   }
@@ -140,12 +171,25 @@ survModel <- function(data,
                       summ_fns=list(mean=mean, sd=sd))
     # Combine side-by-side
     df_wide <- data.frame(
-      time = time_grid,
-      surv_0 = psms0$mean,
-      surv_1 = psms1$mean,
-      std_err_0 = psms0$sd,
-      std_err_1 = psms1$sd
+      setNames(rep(list(rep(1,length(time_grid))), 5),
+               c(paste0("time"),
+                 paste0("surv_",trt_names[1]),
+                 paste0("surv_",trt_names[2]),
+                 paste0("std_err_",trt_names[1]),
+                 paste0("std_err_",trt_names[2])))
     )
+    df_wide[,1] = time_grid
+    df_wide[,2] = psms0$mean
+    df_wide[,3] = psms1$mean
+    df_wide[,4] = psms0$sd
+    df_wide[,5] = psms1$sd
+    #df_wide <- data.frame(
+    #  time = time_grid,
+    #  surv_0 = psms0$mean,
+    #  surv_1 = psms1$mean,
+    #  std_err_0 = psms0$sd,
+    #  std_err_1 = psms1$sd
+    #)
     df_wide$model = "BayesMspline"
     df$BayesMspline = tibble(df_wide)
   }

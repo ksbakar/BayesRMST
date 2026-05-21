@@ -14,6 +14,7 @@ BayesDecision_RMST <- function(result,
   # Apply row-wise simulation
   n_sim <- 1000
   tau_grid <- df_result$time
+  nms <- names(df_result)
   sims_0 <- mapply(function(mu, sd) {
     if (is.na(mu) || is.na(sd)) {
       rep(0, n_sim)
@@ -24,7 +25,8 @@ BayesDecision_RMST <- function(result,
     } else {
       rnorm(n = n_sim, mean = mu, sd = sd)
     }
-  }, df_result$surv_0, df_result$std_err_0, SIMPLIFY = TRUE)
+  }, df_result[[nms[2]]], df_result[[nms[4]]], SIMPLIFY = TRUE)
+  #}, df_result$surv_0, df_result$std_err_0, SIMPLIFY = TRUE)
   sims_1 <- mapply(function(mu, sd) {
     if (is.na(mu) || is.na(sd)) {
       rep(0, n_sim)
@@ -35,7 +37,8 @@ BayesDecision_RMST <- function(result,
     } else {
       rnorm(n = n_sim, mean = mu, sd = sd)
     }
-  }, df_result$surv_1, df_result$std_err_1, SIMPLIFY = TRUE)
+  }, df_result[[nms[3]]], df_result[[nms[5]]], SIMPLIFY = TRUE)
+  #}, df_result$surv_1, df_result$std_err_1, SIMPLIFY = TRUE)
   delta <- sims_1 - sims_0
   delta_sd <- apply(delta,2,sd, na.rm=TRUE)
   Omega <- delta/delta_sd
