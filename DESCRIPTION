@@ -14,7 +14,7 @@ Authors@R:
              comment = c(ORCID = "0000-0002-9389-2516"))
 			 )
 Depends: R (>= 4.5)
-Description: What the package does (one paragraph).
+Description: The package supports Bayesian nonparametric, Bayesian M-spline, and Bayesian parametric survival models, and provides posterior inference for RMST differences, uncertainty quantification, and data-adaptive optimisation of restriction times.
 License: GPL (>= 2)
 Imports: survival, spBayesSurv, survextrap, brms, ggplot2, patchwork, dplyr, tidyr
 Encoding: UTF-8
