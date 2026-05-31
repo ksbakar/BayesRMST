@@ -5,7 +5,7 @@
 This function is used to obtain optimal time for RMST using Bayesian approach.
 }
 \usage{
-survRMST(data, modelType = c("KM"), family = "weibull",
+survRMST(data, modelType, family = "weibull",
     iter = 2000, chains = 1, cores = 1, control = list(adapt_delta = 0.95), seed = 1234,
     prior_expert_list = NULL, eta = 0.95)
 }

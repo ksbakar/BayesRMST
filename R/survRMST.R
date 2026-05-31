@@ -6,14 +6,14 @@
 
 survRMST <- function(
     data,
-    modelType = c("KM"),
+    modelType, # = c("KM"),
     family = "weibull",
     iter = 2000,
     chains = 1,
     cores = 1,
     control = list(adapt_delta = 0.95),
     seed = 1234,
-    prior_expert_list = list(c(5,6), c(10,12), c(8.5,10)),
+    prior_expert_list = NULL, #list(c(5,6), c(10,12), c(8.5,10)),
     eta = 0.95
 )
 {
@@ -45,6 +45,7 @@ survRMST <- function(
   out$RMST <- rmst
   out$model_fit <- fit
   out$decision <- decision
+  out$elicitation <- prior_expert_list
   class(out) <- "BayesRMST"
   out
   #

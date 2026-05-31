@@ -3,6 +3,12 @@
 #############################################################
 
 print.BayesRMST <- function(x, ...){
+  if(is.null(x$elicitation)) {
+    el <- "was not specified"
+  } else{
+    el <- x$elicitation
+  }
+  cat(paste0("\n Prior Elicitation: ", el, "\n"))
   print(x$RMST)
 }
 
@@ -137,7 +143,6 @@ plot_omega <- function(object){
       #legend.title = element_text(face = "bold")
     )
 }
-#plot_omega(bb$gridOmega) # from decision
 
 #############################################################
 

@@ -26,7 +26,6 @@ BayesDecision_RMST <- function(result,
       rnorm(n = n_sim, mean = mu, sd = sd)
     }
   }, df_result[[nms[2]]], df_result[[nms[4]]], SIMPLIFY = TRUE)
-  #}, df_result$surv_0, df_result$std_err_0, SIMPLIFY = TRUE)
   sims_1 <- mapply(function(mu, sd) {
     if (is.na(mu) || is.na(sd)) {
       rep(0, n_sim)
@@ -38,7 +37,6 @@ BayesDecision_RMST <- function(result,
       rnorm(n = n_sim, mean = mu, sd = sd)
     }
   }, df_result[[nms[3]]], df_result[[nms[5]]], SIMPLIFY = TRUE)
-  #}, df_result$surv_1, df_result$std_err_1, SIMPLIFY = TRUE)
   delta <- sims_1 - sims_0
   delta_sd <- apply(delta,2,sd, na.rm=TRUE)
   Omega <- delta/delta_sd
@@ -77,72 +75,87 @@ BayesDecision_RMST <- function(result,
   }
   decision <- mean(as.numeric(prob_vec > eta)) # decision rule
   results <- list()
-  results$Unconstrained_Restriction_Time <- list(summary=tibble(x = tau_star) %>%
-                                                   summarise(
-                                                     median = median(x, na.rm=TRUE),
-                                                     q025  = quantile(x, 0.025, na.rm=TRUE),
-                                                     q975  = quantile(x, 0.975, na.rm=TRUE),
-                                                     mean = mean(x, na.rm=TRUE),
-                                                     sd = sd(x, na.rm=TRUE)
-                                                   ),
-                                                 tau_star = tibble(tau_star, prob_vec),
-                                                 decision = decision
+  results$Unconstrained_Restriction_Time <- list(
+    summary = tibble(
+      median = median(tau_star, na.rm = TRUE),
+      q025   = quantile(tau_star, 0.025, na.rm = TRUE),
+      q975   = quantile(tau_star, 0.975, na.rm = TRUE),
+      mean   = mean(tau_star, na.rm = TRUE),
+      sd     = sd(tau_star, na.rm = TRUE)
+    ),
+    tau_star = tibble(tau_star, prob_vec),
+    decision = decision
   )
   # constrained restriction time - multiple expert knowledge
   # Uniform distribution
   # tau_grid summary values
-  tau_min_one <- tau_grid[order(tau_grid)][2]
-  tau_max <- max(tau_grid, na.rm = TRUE)
-  tau_05 <- quantile(tau_grid, 0.05, na.rm = TRUE)
-  tau_95 <- quantile(tau_grid, 0.95, na.rm = TRUE)
-  interval_list <- lapply(prior_expert_list, function(x) {
-    if (min(x) > tau_max || max(x) > tau_max) {
-      c(tau_95, tau_max)
-    } else if (max(x) < tau_min_one || min(x) < tau_min_one) {
-      c(tau_min_one, tau_05)
-    } else {
-      x
-    }
-  })
-  # append full tau_grid range
-  interval_list <- c(interval_list, list(range(tau_grid, na.rm = TRUE)))
-  interval_idx <- lapply(interval_list, function(interval) {
-    which(tau_grid >= interval[1] & tau_grid <= interval[2])
-  })
-  # drop elements with integer(0) and one single observation
-  valid_idx <- lengths(interval_idx) > 1
-  interval_idx  <- interval_idx[valid_idx]
-  interval_list <- interval_list[valid_idx]
-  #
-  tau_max_mat <- sapply(seq_along(interval_idx), function(e) {
-    idx <- interval_idx[[e]]
-    tau_grid[idx][max.col(Omega[, idx, drop = FALSE])]
-  })
-  sigma_e <- sapply(interval_idx, function(idx) {
-    mean(apply(Omega[, idx, drop = FALSE], 1, sd))
-  })
-  tau_max_mat <- as.matrix(tau_max_mat[, colSums(!is.na(tau_max_mat)) > 0])
-  sigma_e <- sigma_e[complete.cases(sigma_e)]
-  w <- exp(-1 / sigma_e)
-  w <- as.matrix(w / sum(w,na.rm=TRUE))
-  tau_star <- tau_max_mat%*%w
-  tau_star <- as.vector(tau_star)
-  prob_vec <- numeric(length(tau_star))
-  for (j in seq_along(tau_star)) {
-    prob_vec[j] <- mean(delta[j, 1:which.min(abs(tau_grid - mean(tau_star, na.rm=TRUE)))] > 0, na.rm = TRUE)
+  if(is.null(prior_expert_list)){
+    results$Constrained_Restriction_Time <- list(
+      summary = tibble(
+        median = median(tau_star, na.rm = TRUE),
+        q025   = quantile(tau_star, 0.025, na.rm = TRUE),
+        q975   = quantile(tau_star, 0.975, na.rm = TRUE),
+        mean   = mean(tau_star, na.rm = TRUE),
+        sd     = sd(tau_star, na.rm = TRUE)
+      ),
+      tau_star = tibble(tau_star, prob_vec),
+      decision = decision
+    )
   }
-  decision <- mean(as.numeric(prob_vec > eta))
-  results$Constrained_Restriction_Time <- list(summary=tibble(x = tau_star) %>%
-                                                 summarise(
-                                                   median = median(x, na.rm=TRUE),
-                                                   q025  = quantile(x, 0.025, na.rm=TRUE),
-                                                   q975  = quantile(x, 0.975, na.rm=TRUE),
-                                                   mean = mean(x, na.rm=TRUE),
-                                                   sd = sd(x, na.rm=TRUE)
-                                                 ),
-                                               tau_star = tibble(tau_star, prob_vec),
-                                               decision = decision
-  )
+  else{
+    tau_min_one <- tau_grid[order(tau_grid)][2]
+    tau_max <- max(tau_grid, na.rm = TRUE)
+    tau_05 <- quantile(tau_grid, 0.05, na.rm = TRUE)
+    tau_95 <- quantile(tau_grid, 0.95, na.rm = TRUE)
+    interval_list <- lapply(prior_expert_list, function(x) {
+      if (min(x) > tau_max || max(x) > tau_max) {
+        c(tau_95, tau_max)
+      } else if (max(x) < tau_min_one || min(x) < tau_min_one) {
+        c(tau_min_one, tau_05)
+      } else {
+        x
+      }
+    })
+    # append full tau_grid range
+    interval_list <- c(interval_list, list(range(tau_grid, na.rm = TRUE)))
+    interval_idx <- lapply(interval_list, function(interval) {
+      which(tau_grid >= interval[1] & tau_grid <= interval[2])
+    })
+    # drop elements with integer(0) and one single observation
+    valid_idx <- lengths(interval_idx) > 1
+    interval_idx  <- interval_idx[valid_idx]
+    interval_list <- interval_list[valid_idx]
+    #
+    tau_max_mat <- sapply(seq_along(interval_idx), function(e) {
+      idx <- interval_idx[[e]]
+      tau_grid[idx][max.col(Omega[, idx, drop = FALSE])]
+    })
+    sigma_e <- sapply(interval_idx, function(idx) {
+      mean(apply(Omega[, idx, drop = FALSE], 1, sd))
+    })
+    tau_max_mat <- as.matrix(tau_max_mat[, colSums(!is.na(tau_max_mat)) > 0])
+    sigma_e <- sigma_e[complete.cases(sigma_e)]
+    w <- exp(-1 / sigma_e)
+    w <- as.matrix(w / sum(w,na.rm=TRUE))
+    tau_star <- tau_max_mat%*%w
+    tau_star <- as.vector(tau_star)
+    prob_vec <- numeric(length(tau_star))
+    for (j in seq_along(tau_star)) {
+      prob_vec[j] <- mean(delta[j, 1:which.min(abs(tau_grid - mean(tau_star, na.rm=TRUE)))] > 0, na.rm = TRUE)
+    }
+    decision <- mean(as.numeric(prob_vec > eta))
+    results$Constrained_Restriction_Time <- list(
+      summary = tibble(
+        median = median(tau_star, na.rm = TRUE),
+        q025   = quantile(tau_star, 0.025, na.rm = TRUE),
+        q975   = quantile(tau_star, 0.975, na.rm = TRUE),
+        mean   = mean(tau_star, na.rm = TRUE),
+        sd     = sd(tau_star, na.rm = TRUE)
+      ),
+      tau_star = tibble(tau_star, prob_vec),
+      decision = decision
+    )
+  }
   #
   return(list(results=results, gridOmega=gridOmega))
   #
