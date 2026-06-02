@@ -23,7 +23,7 @@ survModel <- function(data,
   df <- setNames(vector("list", length(modelType)), modelType)
   #
   if("KM" %in% modelType){
-    #library(survival)
+    # library(survival)
     # Fit survival model
     fit <- survfit(Surv(X, delta) ~ A, data = data)
     # Get summary at specified time points
@@ -52,8 +52,8 @@ survModel <- function(data,
     df$KM = df_wide
   }
   if("BayesNonPara" %in% modelType){
-    #library(survival)
-    #library(spBayesSurv)
+    # library(survival)
+    # library(spBayesSurv)
     # ref: https://onlinelibrary.wiley.com/doi/full/10.1111/j.1541-0420.2008.01166.x
     fitnp0 <- anovaDDP(
       Surv(X, delta) ~ 1,
@@ -90,7 +90,7 @@ survModel <- function(data,
     df$BayesNonPara = tibble(df_wide)
   }
   if("BayesPara" %in% modelType){
-    #library(brms)
+    # library(brms)
     # Fit model for A = 0
     fit0 <- brm(
       bf(X | cens(1 - delta) ~ 1),
@@ -136,7 +136,7 @@ survModel <- function(data,
   }
   if("BayesMspline" %in% modelType){
     # ref: https://doi.org/10.1186/s12874-023-02094-1
-    #library(survextrap)
+    # library(survextrap)
     fitms0 <- survextrap(
       formula = Surv(X, delta) ~ 1,
       data = subset(data, A == trt_names[1]),

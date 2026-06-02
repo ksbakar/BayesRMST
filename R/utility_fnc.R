@@ -8,7 +8,8 @@ print.BayesRMST <- function(x, ...){
   } else{
     el <- x$elicitation
   }
-  cat(paste0("\n Prior Elicitation: ", el, "\n"))
+  cat(paste0("\n Prior Elicitation: ", el))
+  cat(paste0("\n\n"))
   print(x$RMST)
 }
 
@@ -69,7 +70,6 @@ plot_surv <- function(object, CI=TRUE){
     surv_long <- object %>%
       pivot_longer(
         cols = matches("^(surv|std_err)_"),
-        #cols = c(surv_0, surv_1, std_err_0, std_err_1),
         names_to = c(".value", "group"),
         names_pattern = "(surv|std_err)_(.)"
       ) %>%
@@ -150,7 +150,6 @@ compute_rmst_table <- function(object, decision) {
   # reshape to long
   object_long <- object %>%
     pivot_longer(
-      #cols = c(surv_0, surv_1, std_err_0, std_err_1),
       cols = matches("^(surv|std_err)_"),
       names_to = c(".value", "group"),
       names_pattern = "(surv|std_err)_(.+)"
@@ -235,7 +234,7 @@ plot_rmst <- function(object, decision, rmst_results) {
       label = paste0("RMST (g=", group, ") = ", round(rmst, 2)),
       y_pos = ifelse(group == grp[1], 0.2, 0.1)
     )
-  pp <- ggplot() +
+  pp <- ggplot2::ggplot() +
     geom_area(
       data = shade_df,
       aes(x = time, y = surv, fill = group),
@@ -275,6 +274,19 @@ plot_rmst <- function(object, decision, rmst_results) {
       size = 3,
       hjust = 0
     ) +
+    geom_text(
+      data = restr_plot,
+      aes(
+        x = tau * 0.98,
+        y = 0.75,
+        label = paste0("tau == ", round(tau, 1))
+      ),
+      parse = TRUE,
+      angle = 90,
+      hjust = 0,
+      vjust = -0.5,
+      size = 3.5
+    ) +
     facet_grid(~ constraint) +
     labs(
       x = "Time",
@@ -295,8 +307,7 @@ compute_rmst_plot <- function(object, decision, plot = FALSE) {
   library(ggplot2)
   # reshape to long
   object_long <- object %>%
-    pivot_longer(
-      #cols = c(surv_0, surv_1, std_err_0, std_err_1),
+    tidyr::pivot_longer(
       cols = matches("^(surv|std_err)_"),
       names_to = c(".value", "group"),
       names_pattern = "(surv|std_err)_(.+)"
@@ -305,7 +316,7 @@ compute_rmst_plot <- function(object, decision, plot = FALSE) {
     mutate(group = group)
   grp <- unique(object_long$group)
   # restriction summaries
-  restr_df <- bind_rows(
+  restr_df <- dplyr::bind_rows(
     decision$results$Unconstrained_Restriction_Time$summary %>%
       mutate(type = "Data-driven"),
     decision$results$Constrained_Restriction_Time$summary %>%

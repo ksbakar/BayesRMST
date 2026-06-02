@@ -65,8 +65,7 @@ BayesDecision_RMST <- function(result,
   })
   tau_max_mat <- as.matrix(tau_max_mat[, colSums(!is.na(tau_max_mat)) > 0])
   sigma_e <- sigma_e[complete.cases(sigma_e)]
-  w <- exp(-1 / sigma_e)
-  w <- as.matrix(w / sum(w,na.rm=TRUE))
+  w <- as.matrix(1)
   tau_star <- tau_max_mat%*%w
   tau_star <- as.vector(tau_star)
   prob_vec <- numeric(length(tau_star)) # sample size decision rule
@@ -135,8 +134,12 @@ BayesDecision_RMST <- function(result,
     })
     tau_max_mat <- as.matrix(tau_max_mat[, colSums(!is.na(tau_max_mat)) > 0])
     sigma_e <- sigma_e[complete.cases(sigma_e)]
-    w <- exp(-1 / sigma_e)
-    w <- as.matrix(w / sum(w,na.rm=TRUE))
+    sigma_ek <- sigma_e[-length(sigma_e)]
+    phi <- 1
+    tilde_w <- exp(-phi * sigma_ek^2)
+    denom <- 1 + sum(tilde_w, na.rm = TRUE)
+    w <- c(tilde_w, 1) / denom
+    w <- as.matrix(w)
     tau_star <- tau_max_mat%*%w
     tau_star <- as.vector(tau_star)
     prob_vec <- numeric(length(tau_star))

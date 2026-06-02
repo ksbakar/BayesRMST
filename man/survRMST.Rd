@@ -68,6 +68,11 @@ print(out_ms)
 plot(out_ms)
 plot(out_ms, omega=TRUE)
 
+out_ms2 <- survRMST(data=y, modelType="BayesMspline",
+                    prior_expert_list=list(c(2,3),c(4,6)))
+print(out_ms2)
+
+
 # Bayesian non-parametric (DDP)
 
 out_dp <- survRMST(data=y, modelType="BayesNonPara")
