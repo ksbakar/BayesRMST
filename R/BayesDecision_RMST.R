@@ -136,7 +136,7 @@ BayesDecision_RMST <- function(result,
     sigma_e <- sigma_e[complete.cases(sigma_e)]
     sigma_ek <- sigma_e[-length(sigma_e)]
     phi <- 1
-    tilde_w <- exp(-phi * sigma_ek^2)
+    tilde_w <- exp(-phi * sigma_ek)
     denom <- 1 + sum(tilde_w, na.rm = TRUE)
     w <- c(tilde_w, 1) / denom
     w <- as.matrix(w)
