@@ -1,0 +1,218 @@
+---
+title: "The BayesRMST R package"
+author: "K Shuvo Bakar, and Armando Teixeira-Pinto"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+vignette: >
+---
+
+## Introduction
+
+The `BayesRMST` package provides Bayesian methods for restricted mean survival time (RMST) analysis and adaptive selection of the restriction time in time-to-event studies. The package is designed for researchers and practitioners seeking clinically interpretable treatment effect estimates while accounting for uncertainty in survival modelling and restriction-time selection. The primary goals of the package are to:
+
+* Provide Bayesian estimation of restricted mean survival time using a range of survival modelling approaches.
+* Implement adaptive restriction-time selection based on posterior utility optimisation, rather than relying on arbitrary or ad hoc choices of the restriction time.
+* Quantify uncertainty in both survival estimation and restriction-time selection within a unified Bayesian framework.
+* Support incorporation of expert-elicited clinically meaningful time windows into the restriction-time optimisation procedure.
+* Provide a consistent interface for Bayesian RMST analysis across multiple classes of survival models.
+
+The package currently supports:
+
+* Bayesian nonparametric survival models.
+* Bayesian M-spline survival models.
+* Bayesian parametric survival models.
+
+These methods build upon established Bayesian and classical survival analysis approaches, with wrapper functions providing a unified interface to existing **R** implementations of nonparametric, M-spline, and parametric survival models. The package extends these methods by implementing a novel Bayesian optimisation framework for selecting the restriction time, enabling principled RMST inference that accounts for posterior uncertainty and clinically relevant decision criteria.
+
+## Installation
+
+### Prerequisites
+
+Before installing `BayesRMST`, users must ensure that:
+
+1. A working C++ toolchain/compiler is installed.
+2. The `rstan` package is successfully installed and configured.
+
+Since `BayesRMST` relies on Stan for Bayesian computation, proper compiler and `rstan` installation are required. For details see the README of `BayesRMST` here: https://github.com/ksbakar/BayesRMST
+
+### Installation via GitHub
+
+You can install the latest official release version via GitHub, which requires R pacakge `devtools` or `remotes`.
+
+```{r install_github1, eval=FALSE}
+# install.packages("devtools")
+devtools::install.packages("ksbakar/BayesRMST")
+```
+
+or  
+
+```{r install_github2, eval=FALSE}
+# install.packages("remotes")
+remotes::install_github("ksbakar/BayesRMST")
+```
+
+The above commands download and install the latest version of the package from the GitHub repository. Once installed, the package can be loaded into the R
+
+## Illustrative Examples
+
+
+```{r setup}
+library("BayesRMST")
+```
+
+### Main Function
+
+The primary function implemented in the package is `survRMST()`, which performs Bayesian RMST analysis under several modelling frameworks. The function supports parametric, spline-based, and nonparametric Bayesian survival models, while also providing posterior inference and Bayesian decision-making tools.
+
+The main arguments of the `survRMST()` function are summarised below.
+
+- `data`: A data frame containing the survival data. The columns must be ordered as:
+  1. Survival time.
+  2. Event indicator/status coded as `0` or `1`.
+  3. Treatment group coded as `0` or `1`.
+
+- `modelType`: Specifies the Bayesian survival model to be fitted. Available options are:
+  - `"BayesPara"` — Bayesian parametric model.
+  - `"BayesMspline"` — Bayesian M-spline model.
+  - `"BayesNonPara"` — Bayesian nonparametric model.
+
+- `family`: Applicable only when `modelType = "BayesPara"`. The default distribution is Weibull, although any distribution supported by `brmsfamily` may also be specified.
+
+- `iter`: Total number of Markov chain Monte Carlo (MCMC) iterations.
+- `chains`: Number of MCMC chains to run.
+- `cores`: Number of processor cores used for parallel computation.
+- `control`: A named list of tuning parameters controlling the Stan sampler.
+- `seed`: Random seed used to ensure reproducibility of results.
+- `prior_expert_list`: A list specifying expert prior information on the restriction time parameter, $\tau$. For example,
+
+```{r}
+list(
+  c(5, 6),
+  c(10, 12),
+  c(8.5, 10)
+)
+```
+- `eta`: Decision threshold used in Bayesian power calculations. The default value is `0.95`.
+
+The `survRMST()` function returns several outputs containing posterior summaries and Bayesian decision measures. The major outputs include:
+
+- `rmst`: A table containing the estimated optimal RMST values together with posterior summaries.
+- `model_fit`: The fitted Bayesian model object.
+- `decision`: Bayesian power or decision outcome based on the specified threshold, $\eta$.
+
+In addition to the main analysis function, the package also provides several S3 methods, including `print()` and `plot()`, to facilitate summarisation and visualisation of model outputs. These methods allow users to inspect posterior RMST estimates, credible intervals, treatment differences, and the optimal restriction time in a user-friendly manner.
+
+### Datasets
+
+The **BayesRMST** package can be applied to a wide range of survival datasets. In this vignette, we illustrate its use with three commonly used datasets available in existing **R** packages:
+
+- `cetux` from **survextrap**, containing head and neck cancer survival data.
+- `cancer` from **survival**, containing lung cancer survival data.
+- `aml` from **survival**, containing acute myelogenous leukemia survival data.
+
+For each dataset, the treatment variable is recoded to a binary indicator (`0`/`1`) before analysis.
+
+```{r data-preparation}
+# Cetuximab data
+data(cetux, package = "survextrap")
+cetux <- cetux[, c("years", "d", "treat")]
+cetux$treat <- as.numeric(cetux$treat) - 1
+
+# Lung cancer data
+data(cancer, package = "survival")
+cancer <- cancer[, c("time", "status", "sex")]
+cancer$sex <- cancer$sex - 1
+cancer$status <- cancer$status - 1
+
+# Acute myelogenous leukemia data
+data(aml, package = "survival")
+aml$x <- abs(aml$x - 2)
+```
+
+## Bayesian M-spline Model
+
+Fit the Bayesian M-spline model by specifying `modelType = "BayesMspline"`.
+
+```{r mspline-fit}
+out <- survRMST(
+  data = cetux,
+  modelType = "BayesMspline",
+  prior_expert_list = list(c(3, 5), c(2, 3))
+)
+
+print(out)
+```
+
+The fitted object contains posterior RMST estimates together with the optimal restriction time under both the data-driven and elicited approaches.
+
+Plot the estimated survival curves and RMST summaries using
+
+```{r mspline-plot, fig.width=7, fig.height=5}
+plot(out)
+```
+
+To display the signal-to-noise ratio used to select the restriction time, use
+
+```{r mspline-omega, fig.width=7, fig.height=5}
+plot(out, omega = TRUE)
+```
+
+## Bayesian Nonparametric Model
+
+Fit the Bayesian nonparametric model by specifying `modelType = "BayesNonPara"`.
+
+```{r nonparametric-fit}
+out <- survRMST(
+  data = cancer,
+  modelType = "BayesNonPara",
+  prior_expert_list = list(c(300, 500), c(800, 900))
+)
+
+print(out)
+```
+
+Visualise both the survival curves and the signal-to-noise ratio.
+
+```{r nonparametric-plots, fig.width=10, fig.height=5}
+p1 <- plot(out)
+p2 <- plot(out, omega = TRUE)
+
+gridExtra::grid.arrange(p1, p2)
+```
+
+## Bayesian Parametric Model
+
+Fit a Bayesian parametric survival model by setting `modelType = "BayesPara"` and specifying a survival distribution.
+
+```{r parametric-weibull}
+out <- survRMST(
+  data = aml,
+  modelType = "BayesPara",
+  family = "weibull",
+  prior_expert_list = list(c(40, 60), c(60, 80))
+)
+
+print(out)
+```
+
+Alternative parametric distributions supported by **brms**, such as the exponential distribution, can also be used.
+
+```{r parametric-exponential}
+out <- survRMST(
+  data = aml,
+  modelType = "BayesPara",
+  family = "exponential",
+  prior_expert_list = list(c(40, 60), c(60, 80))
+)
+
+print(out)
+```
+
+These examples demonstrate the typical workflow in `BayesRMST`: fit a Bayesian survival model, estimate the optimal restriction time, summarise the results with `print()`, and visualise the fitted model using `plot()`.
+
+## References
+
+Bakar, K. S., Teixeira-Pinto, A., Tchetgen, E. J. T., Wong, G. (2026). *Data Adaptation and Elicitation for Restricted Mean Survival Time within a Bayesian Framework*. \emph{Submitted}.
+
